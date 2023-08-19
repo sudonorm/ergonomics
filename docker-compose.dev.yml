@@ -1,0 +1,64 @@
+version: "3.3"
+
+services:
+
+    traefik:
+        image: "traefik:v2.9"
+        container_name: "traefik"
+        command:
+        #- "--log.level=DEBUG"
+        - "--api.insecure=true"
+        - "--providers.docker=true"
+        - "--providers.docker.exposedbydefault=false"
+        - "--entrypoints.web.address=:80"
+        ports:
+        - "80:80"
+        - "8080:8080"
+        volumes:
+        - "/var/run/docker.sock:/var/run/docker.sock:ro"
+        networks:
+            - proxy
+
+    whoami:
+        image: "traefik/whoami"
+        container_name: "whoami"
+        labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
+        - "traefik.http.routers.whoami.entrypoints=web"
+        networks:
+            - proxy
+
+    ergo_questionaire_redis:
+        image: redis
+        container_name: "ergo_questionaire_redis_cache"
+        networks:
+        - proxy
+
+    ergo_questionaire:
+        environment:
+        - PYTHONUNBUFFERED=1
+        build: 
+            context: .
+            dockerfile: ./Dockerfile
+        image: ergo_questionaire_img
+        container_name: ergo_questionaire_cont
+        restart: always
+        ports:
+            - "8999:8999"
+        command: python3 -u /app/server.py
+        labels:
+        - "traefik.enable=true"
+        #- "traefik.http.routers.findidback.entrypoints=web"
+        - "traefik.http.routers.findidback.rule=Host(`localhost`) && PathPrefix(`/ergo_questionaire{regex:$$|/.*}`)"
+        - "traefik.http.services.findidback.loadbalancer.server.port=8999"
+        #- "traefik.http.routers.findId_back.tls=true"
+        expose:
+        - 8999
+        networks:
+        - proxy
+    
+networks:
+  proxy:
+    external:
+      true

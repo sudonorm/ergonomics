@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  ergo_questionaire:
+    environment:
+      - PYTHONUNBUFFERED=1
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: ergo_questionaire_img
+    container_name: ergo_questionaire_cont
+    restart: unless-stopped
+    volumes:
+      - /home/:/app ##
+
+    ports:
+      - "8999:8999"
+    #command: python3 -u /app/server.py
+    command: gunicorn -w 1 -b 0.0.0.0:8999 server:server
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ergo_questionaire.entrypoints=websecure"
+      - "traefik.http.routers.ergo_questionaire.rule=Host(`www.example.com`) && PathPrefix(`/ergo_questionaire{regex:$$|/.*}`)"
+      - "traefik.http.services.ergo_questionaire.loadbalancer.server.port=8999"
+      - "traefik.http.routers.ergo_questionaire.tls=true"
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external:
+      true
