@@ -11,7 +11,7 @@ from Pages import index, pageone
 PROD = True
 DEBUG_MODE = False ### this should only be set to true when developing and not in production
 
-if pltfrm_type in ['win32', 'cygwin']:
+if pltfrm_type in ['win32', 'cygwin', 'darwin']:
     PROD = False
     DEBUG_MODE = True
 
