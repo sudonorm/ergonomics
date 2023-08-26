@@ -19,13 +19,13 @@ app = Dash(__name__, use_pages=True, pages_folder="", external_stylesheets=[dbc.
             meta_tags=[{'name': 'viewport',
                                         'content': 'width=device-width, initial-scale=1.0'}], url_base_pathname="/ergo_questionaire/")
 
-dash.register_page("index", path='/', layout=index.layout, name='Home')
-dash.register_page("pageone", layout=pageone.layout, name='Page One')
+dash.register_page("index", path='/', layout=index.layout, name='Reba-Rula')
+# dash.register_page("pageone", layout=pageone.layout, name='Page One')
 
 navbar = dbc.NavbarSimple(
     children=[
-        dbc.NavItem(dbc.NavLink("Home", href="/ergo_questionaire")),
-        dbc.NavItem(dbc.NavLink("Page One", href="/ergo_questionaire/pageone")),
+        dbc.NavItem(dbc.NavLink("REBA", href="/ergo_questionaire")),
+        # dbc.NavItem(dbc.NavLink("Page One", href="/ergo_questionaire/pageone")),
         
     ],
     #brand="NavbarSimple",
