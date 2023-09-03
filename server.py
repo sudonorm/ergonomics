@@ -7,6 +7,7 @@ from app import app
 print("Dash should be running on http://127.0.0.1:8999/ergo_questionaire")
 print("* Serving Flask app 'app'")
 print("Press CTRL+C to quit")
+#http://127.0.0.1:8999/ergo_questionaire/
 
 server = app.server
 

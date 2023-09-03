@@ -38,7 +38,7 @@ BASEPATH = BASEPATH_NETWORK
 df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/gapminder2007.csv')
 
 par_ids = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10']
-neck_score_ids = ['0', '1', '2']
+neck_score_ids = ['1', '2']
 neck_score_ids_adjust = ['0', '1']
 trunk_posture_score_ids = ['1', '2', '3', '4']
 trunk_posture_ids_adjust = ['0', '1']
@@ -97,6 +97,46 @@ procedure_ids = ['ProbeQ1T1',
  'FlossQ3T2',
  'FlossQ4T2',
  'FlossAllQT2']
+
+output_template_reba = {'Participant_ID': '',
+ 'Assessment': '',
+ 'Procedure_and_Mouth_Quadrant': '',
+ 'Variable_ID': '',
+ 'Step_1:_Locate_the_neck_position': '',
+ 'If_neck_is_twisted': '',
+ 'If_neck_is_side_bending': '',
+ 'Neck_score': '',
+ 'Step_2:_Locate_trunk_position': '',
+ 'If_trunk_is_twisted': '',
+ 'If_trunk_is_side_bending': '',
+ 'Trunk_Posture_score': '',
+ 'Step_3:_Legs': '',
+ 'step_3_Adjust': '',
+ 'Leg_Score': '',
+ 'Step_4:_Look-up_Posture_Score_in_Table_A._Posture_Score_A': '',
+ 'Step_5:_Add_fore_load_score': '',
+ 'If_shock_or_rapid_build_up_of_force': '',
+ 'Force_Load_score': '',
+ 'Step_6:_Score_A,_Find_Row_in_Table_C_(Steps_4+5_scores)._Score_A': '',
+ 'Step_7:_Locate_upper_arm_position': '',
+ 'If_shoulder_is_raised': '',
+ 'If_upper_arm_is_abducted': '',
+ 'If_arm_is_supported_or_person_is_leaning': '',
+ 'Upper_arm_score': '',
+ 'Step_8:_Locate_lower_arm_position': '',
+ 'Step_9:_Locate_wrist_posture': '',
+ 'If_wrist_is_bent_from_midline_or_twisted': '',
+ 'Wrist_posture_score': '',
+ 'Step_10:_Look-up_posture_score_in_Table_B._Postue_Score_B': '',
+ 'Step_11:Add_coupling_score_Coupling_Score': '',
+ 'Step_12:_Score_B,_Find_column_in_Table_C._Score_B': '',
+ 'Table_C_Score': '',
+ '1_or_more_body_parts_are_held_for_longer_than_1_minute_(static)': '',
+ 'Repeat_small_range_actions_more_than_4X_per_minute)': '',
+ 'Action_causes_rapid_large_range_changes_in_postures_or_unstable_base': '',
+ 'Activity_score': '',
+ 'REBA_Score': '',
+ 'REBA_Score_conclusion': ''}
 
 badge_a = dbc.Button(
     [
@@ -185,14 +225,48 @@ layout = html.Div([
                                 html.Img(src='assets/images/1. Neck posture.PNG', height=200, width=400)
                     ], xs=12, sm=12, md=7, lg=7, xl=7,
                             ),
-                    #     dbc.Col(
-                    #         [
-                    #             html.Label('Neck score:'),
-                    # ], xs=12, sm=12, md=3, lg=3, xl=3,
-                    #         ),
+
                         dbc.Col(
                             [
-                                html.Label('Neck score:'),
+                                dbc.Row([
+                                    dbc.Col([
+                                        html.Label('Neck score:'),
+                                    ], xs=12, sm=12, md=6, lg=6, xl=6,
+                                    ),
+                                    dbc.Col([
+                                        html.Div(
+                                            [
+                                                dbc.Button(
+                                                    "Open description",
+                                                    id="collapse-button-neck-score",
+                                                    className="mb-3",
+                                                    color="primary",
+                                                    n_clicks=0,
+                                                    size="sm"
+                                                ),
+                                                dbc.Collapse(
+                                                    dbc.Card(dbc.CardBody([
+                                                        html.P("0-20° (flexion) = +1", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("20°+ (flexion/forward motion)= +2", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("In extension (backward)= +2", 
+                                                            
+                                                            className="card-text"),
+                                                        
+                                                        ])),
+                                                    id="collapse-neck-score",
+                                                    is_open=False,
+                                                    style={"marginBottom": 20},
+                                                ),
+                                            ], className='d-grid',
+                                        ),
+                                        ], xs=12, sm=12, md=6, lg=6, xl=6
+                                    ),
+                                ]),
+
                                 dcc.Dropdown(
                                     id='neck-score',
                                     options=[{'label':x, 'value': x} for x in neck_score_ids],
@@ -201,6 +275,12 @@ layout = html.Div([
                                     searchable=False,
                                     disabled=False
                                 ),
+
+                                html.Br(),
+                                html.Hr(),
+
+                                html.Label('Step 1a: Adjust', className='fw-bold'),
+                                html.Br(),
 
                                 html.Label('Is the neck twisted? If yes, select 1', style={"marginTop": 20}),
                                 dcc.Dropdown(
@@ -238,14 +318,56 @@ layout = html.Div([
                                 html.Img(src='assets/images/2. Trunk Posture.PNG', height=200, width=450)
                     ], xs=12, sm=12, md=7, lg=7, xl=7,
                             ),
-                    #     dbc.Col(
-                    #         [
-                    #             html.Label('Neck score:'),
-                    # ], xs=12, sm=12, md=3, lg=3, xl=3,
-                    #         ),
                         dbc.Col(
                             [
-                                html.Label('Trunk Posture score:'),
+                                dbc.Row([
+                                    dbc.Col([
+                                        html.Label('Trunk Posture score:'),
+                                    ], xs=12, sm=12, md=6, lg=6, xl=6,
+                                    ),
+                                    dbc.Col([
+                                        html.Div(
+                                            [
+                                                dbc.Button(
+                                                    "Open description",
+                                                    id="collapse-button-trunk-score",
+                                                    className="mb-3",
+                                                    color="primary",
+                                                    n_clicks=0,
+                                                    size="sm"
+                                                ),
+                                                dbc.Collapse(
+                                                    dbc.Card(dbc.CardBody([
+                                                        html.P("0° = +1", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("0° - 20° (in extension i.e. backward neck motion): +2", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("0° - 20° (flexion i.e. forward neck motion):   +2", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("20° - 60° (flexion): +3", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P(">20° (in extension or backward): +3", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("60°+ (flexion): +4", 
+                                                            
+                                                            className="card-text"),
+                                                        
+                                                        ])),
+                                                    id="collapse-trunk-score",
+                                                    is_open=False,
+                                                    style={"marginBottom": 20},
+                                                ),
+                                            ], className='d-grid',
+                                        ),
+                                        ], xs=12, sm=12, md=6, lg=6, xl=6
+                                    ),
+                                ]),
+
                                 dcc.Dropdown(
                                     id='trunk-posture-score',
                                     options=[{'label':x, 'value': x} for x in trunk_posture_score_ids],
@@ -254,6 +376,12 @@ layout = html.Div([
                                     searchable=False,
                                     disabled=False
                                 ),
+
+                                html.Br(),
+                                html.Hr(),
+
+                                html.Label('Step 2a: Adjust', className='fw-bold'),
+                                html.Br(),
 
                                 html.Label('Is the trunk twisted? If yes, select 1', style={"marginTop": 20}),
                                 dcc.Dropdown(
@@ -291,14 +419,44 @@ layout = html.Div([
                                 html.Img(src='assets/images/3. Leg posture.PNG', height=200, width=450)
                     ], xs=12, sm=12, md=7, lg=7, xl=7,
                             ),
-                    #     dbc.Col(
-                    #         [
-                    #             html.Label('Neck score:'),
-                    # ], xs=12, sm=12, md=3, lg=3, xl=3,
-                    #         ),
                         dbc.Col(
                             [
-                                html.Label('Leg Posture score:'),
+                                dbc.Row([
+                                    dbc.Col([
+                                        html.Label('Leg Posture score:'),
+                                    ], xs=12, sm=12, md=6, lg=6, xl=6,
+                                    ),
+                                    dbc.Col([
+                                        html.Div(
+                                            [
+                                                dbc.Button(
+                                                    "Open description",
+                                                    id="collapse-button-leg-pos-score",
+                                                    className="mb-3",
+                                                    color="primary",
+                                                    n_clicks=0,
+                                                    size="sm"
+                                                ),
+                                                dbc.Collapse(
+                                                    dbc.Card(dbc.CardBody([
+                                                        html.P("Both legs down: +1", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("One leg raised: +2  ", 
+                                                            
+                                                            className="card-text"),
+                                                        
+                                                        ])),
+                                                    id="collapse-leg-pos-score",
+                                                    is_open=False,
+                                                    style={"marginBottom": 20},
+                                                ),
+                                            ], className='d-grid',
+                                        ),
+                                        ], xs=12, sm=12, md=6, lg=6, xl=6
+                                    ),
+                                ]),
+
                                 dcc.Dropdown(
                                     id='leg-posture-score',
                                     options=[{'label':x, 'value': x} for x in leg_posture_score_ids],
@@ -308,7 +466,13 @@ layout = html.Div([
                                     disabled=False
                                 ),
 
-                                html.Label('Adjust legs score: select 1 for 30-60° and 2 for 60°', style={"marginTop": 20}),
+                                html.Br(),
+                                html.Hr(),
+
+                                html.Label('Step 3a: Adjust', className='fw-bold'),
+                                html.Br(),
+
+                                html.Label('Adjust legs score: select 1 for 30-60° and 2 for 60°+', style={"marginTop": 20}),
                                 dcc.Dropdown(
                                     id='leg-posture-adjust',
                                     options=[{'label':x, 'value': x} for x in leg_posture_score_adjust],
@@ -334,14 +498,48 @@ layout = html.Div([
                                 html.Img(src='assets/images/5. Add force or load score.PNG', height=200, width=450)
                     ], xs=12, sm=12, md=7, lg=7, xl=7,
                             ),
-                    #     dbc.Col(
-                    #         [
-                    #             html.Label('Neck score:'),
-                    # ], xs=12, sm=12, md=3, lg=3, xl=3,
-                    #         ),
+
                         dbc.Col(
                             [
-                                html.Label('Add force or load score:'),
+                                dbc.Row([
+                                    dbc.Col([
+                                        html.Label('Add force or load score:'),
+                                    ], xs=12, sm=12, md=6, lg=6, xl=6,
+                                    ),
+                                    dbc.Col([
+                                        html.Div(
+                                            [
+                                                dbc.Button(
+                                                    "Open description",
+                                                    id="collapse-button-force-load-score",
+                                                    className="mb-3",
+                                                    color="primary",
+                                                    n_clicks=0,
+                                                    size="sm"
+                                                ),
+                                                dbc.Collapse(
+                                                    dbc.Card(dbc.CardBody([
+                                                        html.P("If load is <11 Ibs: +0", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("If load is 11 to 22 Ibs,: +1", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("If load is >22 Ibs.: +2", 
+                                                            
+                                                            className="card-text"),
+                                                        
+                                                        ])),
+                                                    id="collapse-force-load-score",
+                                                    is_open=False,
+                                                    style={"marginBottom": 20},
+                                                ),
+                                            ], className='d-grid',
+                                        ),
+                                        ], xs=12, sm=12, md=6, lg=6, xl=6
+                                    ),
+                                ]),
+
                                 dcc.Dropdown(
                                     id='force-load-score',
                                     options=[{'label':x, 'value': x} for x in force_load_score_ids],
@@ -351,7 +549,13 @@ layout = html.Div([
                                     disabled=False
                                 ),
 
-                                html.Label('If shock or rapid build up of force: add +1', style={"marginTop": 20}),
+                                html.Br(),
+                                html.Hr(),
+
+                                html.Label('Step 5a: Adjust', className='fw-bold'),
+                                html.Br(),
+
+                                html.Label('Adjust if shock or rapid build up of force: add +1', style={"marginTop": 20}),
                                 dcc.Dropdown(
                                     id='force-adjust',
                                     options=[{'label':x, 'value': x} for x in force_load_score_adjust],
@@ -407,7 +611,52 @@ layout = html.Div([
    
                         dbc.Col(
                             [
-                                html.Label('Upper arm position:'),
+                                dbc.Row([
+                                    dbc.Col([
+                                        html.Label('Upper arm position:'),
+                                    ], xs=12, sm=12, md=6, lg=6, xl=6,
+                                    ),
+                                    dbc.Col([
+                                        html.Div(
+                                            [
+                                                dbc.Button(
+                                                    "Open description",
+                                                    id="collapse-button-upper-arm-score",
+                                                    className="mb-3",
+                                                    color="primary",
+                                                    n_clicks=0,
+                                                    size="sm"
+                                                ),
+                                                dbc.Collapse(
+                                                    dbc.Card(dbc.CardBody([
+                                  
+                                                        html.P("20-20°: +1", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("20° (in extension i.e. downward and backward): Add +2", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("20-45° (flexion): +2", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("45-90° (flexion):  +3", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("90°+: +4", 
+                                                            
+                                                            className="card-text"),
+                                                        
+                                                        ])),
+                                                    id="collapse-upper-arm-score",
+                                                    is_open=False,
+                                                    style={"marginBottom": 20},
+                                                ),
+                                            ], className='d-grid',
+                                        ),
+                                        ], xs=12, sm=12, md=6, lg=6, xl=6
+                                    ),
+                                ]),
+
                                 dcc.Dropdown(
                                     id='upper-arm-score',
                                     options=[{'label':x, 'value': x} for x in upper_arm_pos_ids],
@@ -416,6 +665,12 @@ layout = html.Div([
                                     searchable=False,
                                     disabled=False
                                 ),
+
+                                html.Br(),
+                                html.Hr(),
+
+                                html.Label('Step 7a: Adjust', className='fw-bold'),
+                                html.Br(),
 
                                 html.Label('Is the shoulder raised? If yes, select 1', style={"marginTop": 20}),
                                 dcc.Dropdown(
@@ -466,7 +721,46 @@ layout = html.Div([
 
                         dbc.Col(
                             [
-                                html.Label('Lower arm score:'),
+                                dbc.Row([
+                                    dbc.Col([
+                                        html.Label('Lower arm score:'),
+                                    ], xs=12, sm=12, md=6, lg=6, xl=6,
+                                    ),
+                                    dbc.Col([
+                                        html.Div(
+                                            [
+                                                dbc.Button(
+                                                    "Open description",
+                                                    id="collapse-button-lower-arm-score",
+                                                    className="mb-3",
+                                                    color="primary",
+                                                    n_clicks=0,
+                                                    size="sm"
+                                                ),
+                                                dbc.Collapse(
+                                                    dbc.Card(dbc.CardBody([
+                                  
+                                                        html.P("60-100°: Add +1", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("0-60°: +2", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("100°+ (in the upward direction): +2", 
+                                                            
+                                                            className="card-text"),
+                                                        
+                                                        ])),
+                                                    id="collapse-lower-arm-score",
+                                                    is_open=False,
+                                                    style={"marginBottom": 20},
+                                                ),
+                                            ], className='d-grid',
+                                        ),
+                                        ], xs=12, sm=12, md=6, lg=6, xl=6
+                                    ),
+                                ]),
+
                                 dcc.Dropdown(
                                     id='lower-arm-score',
                                     options=[{'label':x, 'value': x} for x in lower_arm_pos_ids],
@@ -495,7 +789,46 @@ layout = html.Div([
 
                         dbc.Col(
                             [
-                                html.Label('Wrist score:'),
+                                dbc.Row([
+                                    dbc.Col([
+                                        html.Label('Wrist score:'),
+                                    ], xs=12, sm=12, md=6, lg=6, xl=6,
+                                    ),
+                                    dbc.Col([
+                                        html.Div(
+                                            [
+                                                dbc.Button(
+                                                    "Open description",
+                                                    id="collapse-button-wrist-score",
+                                                    className="mb-3",
+                                                    color="primary",
+                                                    n_clicks=0,
+                                                    size="sm"
+                                                ),
+                                                dbc.Collapse(
+                                                    dbc.Card(dbc.CardBody([
+                                  
+                                                        html.P("15-15°: +1", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("15°+ (in the upward position): +2", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("15°+ (in the downward position): +2", 
+                                                            
+                                                            className="card-text"),
+                                                        
+                                                        ])),
+                                                    id="collapse-wrist-score",
+                                                    is_open=False,
+                                                    style={"marginBottom": 20},
+                                                ),
+                                            ], className='d-grid',
+                                        ),
+                                        ], xs=12, sm=12, md=6, lg=6, xl=6
+                                    ),
+                                ]),
+
                                 dcc.Dropdown(
                                     id='wrist-score',
                                     options=[{'label':x, 'value': x} for x in wrist_pos_ids],
@@ -504,6 +837,12 @@ layout = html.Div([
                                     searchable=False,
                                     disabled=False
                                 ),
+
+                                html.Br(),
+                                html.Hr(),
+
+                                html.Label('Step 9a: Adjust', className='fw-bold'),
+                                html.Br(),
 
                                 html.Label('Is the wrist bent from the midline or twisted? If yes, select 1', style={"marginTop": 20}),
                                 dcc.Dropdown(
@@ -535,7 +874,49 @@ layout = html.Div([
 
                         dbc.Col(
                             [
-                                html.Label('Select coupling score:'),
+                                dbc.Row([
+                                    dbc.Col([
+                                        html.Label('Select coupling score:'),
+                                    ], xs=12, sm=12, md=6, lg=6, xl=6,
+                                    ),
+                                    dbc.Col([
+                                        html.Div(
+                                            [
+                                                dbc.Button(
+                                                    "Open description",
+                                                    id="collapse-button-coupling-score",
+                                                    className="mb-3",
+                                                    color="primary",
+                                                    n_clicks=0,
+                                                    size="sm"
+                                                ),
+                                                dbc.Collapse(
+                                                    dbc.Card(dbc.CardBody([
+                                  
+                                                        html.P("Well fitting handle and mid rsnge powet grip, good: +0", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("Acceptable but not ideal hand hold or coupling acceptable with another body part, fair: +1 ", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("Hand hold not acceptable but possible, poor: +2", 
+                                                            
+                                                            className="card-text"),
+                                                        html.P("Unacceptable: +3", 
+                                                            
+                                                            className="card-text"),
+                                                        
+                                                        ])),
+                                                    id="collapse-coupling-score",
+                                                    is_open=False,
+                                                    style={"marginBottom": 20},
+                                                ),
+                                            ], className='d-grid',
+                                        ),
+                                        ], xs=12, sm=12, md=6, lg=6, xl=6
+                                    ),
+                                ]),
+
                                 dcc.Dropdown(
                                     id='coupling-score',
                                     options=[{'label':x, 'value': x} for x in coupling_score_ids],
@@ -778,7 +1159,85 @@ layout = html.Div([
 
 #             ], title="Step 1: Locate the neck position",), ],start_collapsed=True , style={"margin": 30}),
 
+@callback(
+    Output("collapse-neck-score", "is_open"),
+    [Input("collapse-button-neck-score", "n_clicks")],
+    [State("collapse-neck-score", "is_open")],
+)
+def toggle_collapse_neck_score(n, is_open):
+    if n:
+        return not is_open
+    return is_open
 
+@callback(
+    Output("collapse-trunk-score", "is_open"),
+    [Input("collapse-button-trunk-score", "n_clicks")],
+    [State("collapse-trunk-score", "is_open")],
+)
+def toggle_collapse_trunk_score(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+@callback(
+    Output("collapse-leg-pos-score", "is_open"),
+    [Input("collapse-button-leg-pos-score", "n_clicks")],
+    [State("collapse-leg-pos-score", "is_open")],
+)
+def toggle_collapse_leg_pos_score(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+@callback(
+    Output("collapse-force-load-score", "is_open"),
+    [Input("collapse-button-force-load-score", "n_clicks")],
+    [State("collapse-force-load-score", "is_open")],
+)
+def toggle_collapse_force_load_score(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+@callback(
+    Output("collapse-upper-arm-score", "is_open"),
+    [Input("collapse-button-upper-arm-score", "n_clicks")],
+    [State("collapse-upper-arm-score", "is_open")],
+)
+def toggle_collapse_upper_arm_score(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+@callback(
+    Output("collapse-lower-arm-score", "is_open"),
+    [Input("collapse-button-lower-arm-score", "n_clicks")],
+    [State("collapse-lower-arm-score", "is_open")],
+)
+def toggle_collapse_lower_arm_score(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+@callback(
+    Output("collapse-wrist-score", "is_open"),
+    [Input("collapse-button-wrist-score", "n_clicks")],
+    [State("collapse-wrist-score", "is_open")],
+)
+def toggle_collapse_wrist_score(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+@callback(
+    Output("collapse-coupling-score", "is_open"),
+    [Input("collapse-button-coupling-score", "n_clicks")],
+    [State("collapse-coupling-score", "is_open")],
+)
+def toggle_collapse_coupling_score(n, is_open):
+    if n:
+        return not is_open
+    return is_open
 
 @callback(
     Output("fade-a", "is_in"),
