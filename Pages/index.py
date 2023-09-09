@@ -17,6 +17,23 @@ import sys
 home_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 sys.path.append(home_dir)
 from utils import folderPaths
+sys.path.append(r"/Users/ayo/Documents/repos/ergonomics")
+from utils import drop_box, send_mail
+from dotenv import load_dotenv
+import dropbox
+
+load_dotenv()
+
+DROPBOX_ACCESS_TOKEN = os.environ.get("DROPBOX_ACCESS")
+SENDER_EMAIL = os.environ.get("EMAIL_USERNAME")
+SENDER_PASS = os.environ.get("EMAIL_PASSWORD")
+PORT_NUMBER = os.environ.get("SMTP_PORT")
+SMTP_SERVER = os.environ.get("SMTP_SERVER")
+RECEIVER_EMAIL = 'brainihac@gmail.com'
+
+dbx_cls = drop_box.DBXUpDown()
+    
+email = send_mail.EmailSender()
 
 LINUX_MNT = folderPaths.LINUX_MNT
 USER_DRIVE = folderPaths.USER_DRIVE
@@ -37,7 +54,7 @@ BASEPATH = BASEPATH_NETWORK
 
 df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/gapminder2007.csv')
 
-par_ids = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10']
+par_ids = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', 'test1', 'test2', 'test3']
 neck_score_ids = ['1', '2']
 neck_score_ids_adjust = ['0', '1']
 trunk_posture_score_ids = ['1', '2', '3', '4']
@@ -185,6 +202,7 @@ layout = html.Div([
                         searchable=False,
                         disabled=False
                     ),
+
 
             ], xs=12, sm=12, md=5, lg=5, xl=5,
                         style={"marginLeft": 5},
@@ -902,7 +920,7 @@ layout = html.Div([
                                                         html.P("Hand hold not acceptable but possible, poor: +2", 
                                                             
                                                             className="card-text"),
-                                                        html.P("Unacceptable: +3", 
+                                                        html.P("No handles, awkward, unsafe with any body part, Unacceptable: +3", 
                                                             
                                                             className="card-text"),
                                                         
@@ -1449,12 +1467,18 @@ def table_b(upper_arm_score, shoulder_raised, upper_arm_abducted, upper_arm_supp
     Input("force-adjust", "value"),
     Input("activity-score-one", "value"),
      Input("activity-score-two", "value"),
-    Input("activity-score-three", "value")],
+    Input("activity-score-three", "value"),
+    Input("date-change", "date"),
+    Input("par-id", "value"),
+    Input("procedure-id", "value"),
+    ],
     # prevent_initial_call=True,
 )
-def table_c(upper_arm_score, shoulder_raised, upper_arm_abducted, upper_arm_supported, lower_arm_score, wrist_score, wrist_adjust, coupling_score, neck_score, neck_twisted, neck_bending, trunk_posture_score, trunk_twisted, trunk_bending, leg_posture_score, leg_posture_adjust, force_load_score, force_adjust, act_scr_one, act_scr_two, act_scr_three):
+def table_c(upper_arm_score, shoulder_raised, upper_arm_abducted, upper_arm_supported, lower_arm_score, wrist_score, wrist_adjust, coupling_score, neck_score, neck_twisted, neck_bending, trunk_posture_score, trunk_twisted, trunk_bending, leg_posture_score, leg_posture_adjust, force_load_score, force_adjust, act_scr_one, act_scr_two, act_scr_three, date_value, par_id, procedure_id):
 
     trigger_id = dash.ctx.triggered_id if not None else 'No clicks yet'
+    assessment = 'Re'
+    file_path_stem = '/reba/'
 
     if neck_score in [None]:
         return no_update
@@ -1475,6 +1499,15 @@ def table_c(upper_arm_score, shoulder_raised, upper_arm_abducted, upper_arm_supp
         return no_update
     
     if wrist_score in [None]:
+        return no_update
+    
+    if date_value in [None]:
+        return no_update
+    
+    if par_id in [None]:
+        return no_update
+    
+    if procedure_id in [None]:
         return no_update
     
     str_one = "The total Reba score, based on Table C and the Activity Score, is: "
@@ -1500,14 +1533,16 @@ def table_c(upper_arm_score, shoulder_raised, upper_arm_abducted, upper_arm_supp
         leg_scr = int(leg_posture_score[0]) + int(leg_posture_adjust[0])
         frce_scr = int(force_load_score[0]) + int(force_adjust[0])
         lookup_ky = f'{str(nck_scr)}{"_"}{str(trnck_scr)}{"_"}{str(leg_scr)}'
-        final_score_a = int(reba_tableA_dict.get(lookup_ky, "0")) + frce_scr
+        score_a_interim = int(reba_tableA_dict.get(lookup_ky, "0"))
+        final_score_a = score_a_interim + frce_scr
         
         upr_arm_scr = int(upper_arm_score[0]) + int(shoulder_raised[0]) + int(upper_arm_abducted[0]) - int(upper_arm_supported[0])
         lwr_arm_scr = int(lower_arm_score[0])
         wrst_scr = int(wrist_score[0]) + int(wrist_adjust[0])
         coup_scr = int(coupling_score[0])
         lookup_ky = f'{str(upr_arm_scr)}{"_"}{str(lwr_arm_scr)}{"_"}{str(wrst_scr)}'
-        final_score_b = int(reba_tableB_dict.get(lookup_ky, "0")) + coup_scr
+        score_b_interim = int(reba_tableB_dict.get(lookup_ky, "0"))
+        final_score_b = score_b_interim + coup_scr
 
         lookup_ky = f'{str(final_score_a)}{"_"}{str(final_score_b)}'
         final_score_c = int(reba_tableC_dict.get(lookup_ky, "0"))
@@ -1515,23 +1550,66 @@ def table_c(upper_arm_score, shoulder_raised, upper_arm_abducted, upper_arm_supp
 
         reba_score = final_score_c + int(act_scr_one[0]) + int(act_scr_two[0]) + int(act_scr_three[0])
 
+        reba_temp = output_template_reba.copy()
+
+        reba_temp['Participant_ID'] = par_id
+        reba_temp['Assessment'] = assessment
+        reba_temp['Procedure_and_Mouth_Quadrant'] = procedure_id
+        reba_temp['Variable_ID'] = f'{par_id}{assessment}{procedure_id}'
+        reba_temp['Step_1:_Locate_the_neck_position'] = int(neck_score[0])
+        reba_temp['If_neck_is_twisted'] = int(neck_twisted[0])
+        reba_temp['If_neck_is_side_bending'] = int(neck_bending[0])
+        reba_temp['Neck_score'] = nck_scr
+        reba_temp['Step_2:_Locate_trunk_position'] = int(trunk_posture_score[0])
+        reba_temp['If_trunk_is_twisted'] = int(trunk_twisted[0])
+        reba_temp['If_trunk_is_side_bending'] = int(trunk_bending[0])
+        reba_temp['Trunk_Posture_score'] = trnck_scr
+        reba_temp['Step_3:_Legs'] = int(leg_posture_score[0])
+        reba_temp['step_3_Adjust'] = int(leg_posture_adjust[0])
+        reba_temp['Leg_Score'] = leg_scr
+        reba_temp['Step_4:_Look-up_Posture_Score_in_Table_A._Posture_Score_A'] = score_a_interim
+        reba_temp['Step_5:_Add_fore_load_score'] = int(force_load_score[0])
+        reba_temp['If_shock_or_rapid_build_up_of_force'] = int(force_adjust[0])
+        reba_temp['Force_Load_score'] = frce_scr
+        reba_temp['Step_6:_Score_A,_Find_Row_in_Table_C_(Steps_4+5_scores)._Score_A'] = final_score_a
+        reba_temp['Step_7:_Locate_upper_arm_position'] = int(upper_arm_score[0])
+        reba_temp['If_shoulder_is_raised'] =  int(shoulder_raised[0]) 
+        reba_temp['If_upper_arm_is_abducted'] = int(upper_arm_abducted[0]) 
+        reba_temp['If_arm_is_supported_or_person_is_leaning'] = int(upper_arm_supported[0])
+        reba_temp['Upper_arm_score'] = upr_arm_scr
+        reba_temp['Step_8:_Locate_lower_arm_position'] = lwr_arm_scr
+        reba_temp['Step_9:_Locate_wrist_posture'] = int(wrist_score[0])
+        reba_temp['If_wrist_is_bent_from_midline_or_twisted'] = int(wrist_adjust[0])
+        reba_temp['Wrist_posture_score'] = wrst_scr
+        reba_temp['Step_10:_Look-up_posture_score_in_Table_B._Postue_Score_B'] = score_b_interim
+        reba_temp['Step_11:Add_coupling_score_Coupling_Score'] = coup_scr
+        reba_temp['Step_12:_Score_B,_Find_column_in_Table_C._Score_B'] = final_score_b
+        reba_temp['Table_C_Score'] = final_score_c
+        reba_temp['1_or_more_body_parts_are_held_for_longer_than_1_minute_(static)'] = int(act_scr_one[0])
+        reba_temp['Repeat_small_range_actions_more_than_4X_per_minute)'] = int(act_scr_two[0])
+        reba_temp['Action_causes_rapid_large_range_changes_in_postures_or_unstable_base'] = int(act_scr_three[0])
+        reba_temp['Activity_score'] = int(act_scr_one[0]) + int(act_scr_two[0]) + int(act_scr_three[0])
+        reba_temp['REBA_Score'] = reba_score
+
+        if reba_score < 2:
+            reba_conclusion = 'Negligible risk' ### 1-2: Negligible risk 
+        elif reba_score >= 2 and reba_score <=3:
+            reba_conclusion = 'Low risk. Change may be needed' ### 2-3: Low risk. Change may be needed 
+        elif reba_score >= 4 and reba_score <=7:
+            reba_conclusion = 'Medium risk. Further investigate. Change soon' ### 4-7: Medium risk. Further investigate. Change soon. 
+        elif reba_score >= 8 and reba_score <=10:
+            reba_conclusion = 'High risk. Investigate and implement change' ### 8-10: High risk. Investigate and implement change 
+        elif reba_score >= 11:
+            reba_conclusion = 'Very high risk. Implement change' ### 11+: Very high risk. Implement change
+        
+        reba_temp['REBA_Score_conclusion'] = reba_conclusion
+        reba_temp['date_assessed'] = date_value
+
+        file_name = f'{file_path_stem}{par_id}{assessment}{procedure_id}{".json"}'
+        data = dbx_cls.dictionary_to_bytes(reba_temp, 'utf-8')
+        dbx_cls.add_to_dropbox(data, file_name)
+
         return [str(final_score_a)], [str(final_score_b)], [str(final_score_c)], f'{str_one}{str(reba_score)}'
     
     else:
         return no_update
-
-## ************************  callback example *****************************
-# @callback(
-#     Output("some-id", "options"), 
-#     [Input("some-other-id", "value")],
-#     prevent_initial_call=True,
-# )
-# def some_function(id):
-
-#     trigger_id = dash.ctx.triggered_id if not None else 'No clicks yet'
-#     if trigger_id == "some-other-id":
-#         print("some logic here")    
-
-#         return [{'label':x, 'value':x} for x in ["tmp"]]
-
-#     return [{'label':x, 'value':x} for x in ["tmp"]]

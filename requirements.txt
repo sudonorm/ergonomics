@@ -9,7 +9,6 @@ xlrd
 alembic
 openpyxl
 XlsxWriter
-cx_Freeze
 waitress
 uvicorn
 gunicorn
@@ -17,3 +16,4 @@ PyMySQL
 urllib3
 python-dotenv
 cookiecutter
+dropbox
