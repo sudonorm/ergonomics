@@ -6,7 +6,7 @@ from sys import platform as pltfrm_type
 import sys
 home_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 sys.path.append(home_dir)
-from Pages import index, pageone
+from Pages import index, rula
 
 PROD = True
 DEBUG_MODE = False ### this should only be set to true when developing and not in production
@@ -20,12 +20,12 @@ app = Dash(__name__, use_pages=True, pages_folder="", external_stylesheets=[dbc.
                                         'content': 'width=device-width, initial-scale=1.0'}], url_base_pathname="/ergo_questionaire/")
 
 dash.register_page("index", path='/', layout=index.layout, name='Reba-Rula')
-# dash.register_page("pageone", layout=pageone.layout, name='Page One')
+dash.register_page("rula", layout=rula.layout, name='Rula')
 
 navbar = dbc.NavbarSimple(
     children=[
         dbc.NavItem(dbc.NavLink("REBA", href="/ergo_questionaire")),
-        # dbc.NavItem(dbc.NavLink("Page One", href="/ergo_questionaire/pageone")),
+        dbc.NavItem(dbc.NavLink("RULA", href="/ergo_questionaire/rula")),
         
     ],
     #brand="NavbarSimple",
@@ -34,6 +34,26 @@ navbar = dbc.NavbarSimple(
     color="primary",
     dark=True,
 )
+
+# elements = []
+# for pg in dash.page_registry:
+#     data = dash.page_registry[pg]['layout']
+#     try:
+#         for i in data:
+#             elements.append(i)
+#     except:
+#         pass
+
+
+# data = dash.get_app().layout
+
+# try:
+#     for i in data:
+#         elements.append(i)
+# except:
+#     pass
+
+# print(elements)
 
 app.layout = html.Div([
 

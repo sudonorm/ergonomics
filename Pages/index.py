@@ -51,9 +51,6 @@ BASEPATH_USER = folderPaths.BASEPATH_USER
 
 BASEPATH = BASEPATH_NETWORK
 
-
-df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/gapminder2007.csv')
-
 par_ids = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', 'test1', 'test2', 'test3']
 neck_score_ids = ['1', '2']
 neck_score_ids_adjust = ['0', '1']
@@ -1477,7 +1474,7 @@ def table_b(upper_arm_score, shoulder_raised, upper_arm_abducted, upper_arm_supp
 def table_c(upper_arm_score, shoulder_raised, upper_arm_abducted, upper_arm_supported, lower_arm_score, wrist_score, wrist_adjust, coupling_score, neck_score, neck_twisted, neck_bending, trunk_posture_score, trunk_twisted, trunk_bending, leg_posture_score, leg_posture_adjust, force_load_score, force_adjust, act_scr_one, act_scr_two, act_scr_three, date_value, par_id, procedure_id):
 
     trigger_id = dash.ctx.triggered_id if not None else 'No clicks yet'
-    assessment = 'Re'
+    assessment = 'RE'
     file_path_stem = '/reba/'
 
     if neck_score in [None]:
@@ -1510,7 +1507,7 @@ def table_c(upper_arm_score, shoulder_raised, upper_arm_abducted, upper_arm_supp
     if procedure_id in [None]:
         return no_update
     
-    str_one = "The total Reba score, based on Table C and the Activity Score, is: "
+    str_one = "The total REBA score, based on Table C and the Activity Score, is: "
 
     assets_table_a = 'assets/data/reba_tableA.json' ### Neck_1|TrunkPostureScore_1|Legs_1
 
@@ -1605,9 +1602,9 @@ def table_c(upper_arm_score, shoulder_raised, upper_arm_abducted, upper_arm_supp
         reba_temp['REBA_Score_conclusion'] = reba_conclusion
         reba_temp['date_assessed'] = date_value
 
-        file_name = f'{file_path_stem}{par_id}{assessment}{procedure_id}{".json"}'
-        data = dbx_cls.dictionary_to_bytes(reba_temp, 'utf-8')
-        dbx_cls.add_to_dropbox(data, file_name)
+        # file_name = f'{file_path_stem}{par_id}{assessment}{procedure_id}{".json"}'
+        # data = dbx_cls.dictionary_to_bytes(reba_temp, 'utf-8')
+        # dbx_cls.add_to_dropbox(data, file_name)
 
         return [str(final_score_a)], [str(final_score_b)], [str(final_score_c)], f'{str_one}{str(reba_score)}'
     
