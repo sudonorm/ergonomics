@@ -1,5 +1,5 @@
 import dash
-from dash import Dash, html
+from dash import Dash, html, dcc, Output, Input, State, callback
 import dash_bootstrap_components as dbc
 import os
 from sys import platform as pltfrm_type
@@ -19,13 +19,13 @@ app = Dash(__name__, use_pages=True, pages_folder="", external_stylesheets=[dbc.
             meta_tags=[{'name': 'viewport',
                                         'content': 'width=device-width, initial-scale=1.0'}], url_base_pathname="/ergo_questionaire/")
 
-dash.register_page("index", path='/', layout=index.layout, name='Reba-Rula')
-dash.register_page("rula", layout=rula.layout, name='Rula')
+# dash.register_page("index", path='/', layout=index.layout, name='Reba-Rula')
+dash.register_page("rula", path='/', layout=rula.layout, name='Rula')
 
 navbar = dbc.NavbarSimple(
     children=[
-        dbc.NavItem(dbc.NavLink("REBA", href="/ergo_questionaire")),
-        dbc.NavItem(dbc.NavLink("RULA", href="/ergo_questionaire/rula")),
+        # dbc.NavItem(dbc.NavLink("REBA", href="/ergo_questionaire")),
+        # dbc.NavItem(dbc.NavLink("RULA", href="/ergo_questionaire")),
         
     ],
     #brand="NavbarSimple",
@@ -57,6 +57,7 @@ navbar = dbc.NavbarSimple(
 
 app.layout = html.Div([
 
+    dcc.Store(id='session', storage_type='session', data = {"rater":"", "rater_email":"", "participant_id":"", "procedure":"", "rula":[], "reba":[], "strain":[]}),
     dbc.Row([
        dbc.Col([
            navbar
